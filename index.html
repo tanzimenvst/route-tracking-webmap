@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Route Tracker</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css"/>
+    <link rel="stylesheet" href="plugins/L.Control.MousePosition.css">
+    <link rel="stylesheet" href="plugins/L.basemapControl.min.css">
+
+    <style>
+      body {
+        background-color: rgb(215, 224, 230);
+      }
+      #map {
+        height: calc(100vh - 150px);
+        width: 100%;
+      }
+      .info {
+        padding: 10px;
+        background: rgb(130, 158, 158);
+        border-radius: 5px;
+        text-align: center;
+        color: white;
+        margin-bottom: 10px;
+      }
+    </style>
+
+  </head>
+  <body>
+    <div class="info">
+      <h2>Shortest Route Tracking WebMap</h2>
+      <p>Click To Set Start Point And End Point</p>
+    </div>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+    <script src="plugins/L.Control.MousePosition.js"></script>
+    <script src="plugins/L.basemapControl.min.js"></script>
+
+    <script>
+      const map = L.map("map").setView([23.8103, 90.4125], 7);
+
+      L.control.mousePosition({position:'bottomleft', separator:' | '}).addTo(map);
+
+      var basemapControl = L.basemapControl({
+          position: 'bottomleft',
+          layers: [
+              {
+                  layer: L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '&copy; Tanzim'})
+              },
+              {
+                  layer: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {attribution: '&copy; Tanzim'})
+              }
+          ]
+      }).addTo(map);
+
+      let startPoint = null;
+      let endPoint = null;
+      let routingControl = null;
+      let startMarker = null;
+      let endMarker = null;
+
+      function clearMap() {
+        if (routingControl) {
+          map.removeControl(routingControl);
+          routingControl = null;
+        }
+        if (startMarker) {
+          map.removeLayer(startMarker);
+          startMarker = null;
+        }
+        if (endMarker) {
+          map.removeLayer(endMarker);
+          endMarker = null;
+        }
+        startPoint = null;
+        endPoint = null;
+      }
+
+      function onMapClick(e) {
+        if (startPoint && !endPoint) {
+          endPoint = e.latlng;
+          endMarker = L.marker(e.latlng)
+            .addTo(map)
+            .bindPopup("End Point")
+            .openPopup();
+          calculateRoute();
+          return;
+        }
+
+        if (routingControl) {
+          if (!confirm("Start new route ? This will clear current route.")) {
+            return;
+          }
+          clearMap();
+        }
+
+        startPoint = e.latlng;
+        startMarker = L.marker(e.latlng)
+          .addTo(map)
+          .bindPopup("Start Point")
+          .openPopup();
+      }
+
+      function calculateRoute() {
+        routingControl = L.Routing.control({
+          waypoints: [
+            L.latLng(startPoint.lat, startPoint.lng),
+            L.latLng(endPoint.lat, endPoint.lng),
+          ],
+          router: L.Routing.osrmv1({
+            serviceUrl: "https://router.project-osrm.org/route/v1",
+          }),
+          routeWhileDragging: false,
+          showAlternatives: false,
+          addWaypoints: false,
+        }).addTo(map);
+
+        routingControl.on("routesfound", function (e) {
+          let route = e.routes[0];
+          let bounds = L.latLngBounds(route.coordinates);
+          map.fitBounds(bounds);
+        });
+      }
+
+      map.on("click", onMapClick);
+
+      document
+        .querySelector(".leaflet-control-basemap")
+        .addEventListener("click", function (event) {
+          event.stopPropagation();
+        });
+    </script>
+  </body>
+</html>
