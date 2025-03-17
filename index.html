@@ -55,6 +55,29 @@
           ]
       }).addTo(map);
 
+      new L.Control.SimpleLocate({
+          position: "topleft",
+          className: "button-locate",
+          afterClick: function () {
+              navigator.geolocation.getCurrentPosition(
+                  function (position) {
+                      let lat = position.coords.latitude;
+                      let lng = position.coords.longitude;
+                      let userLatLng = L.latLng(lat, lng);
+
+                      console.log("User location:", userLatLng);
+                      map.flyTo(userLatLng, 15, {
+                          animate: true,
+                          duration: 1.5
+                      });
+                  },
+                  function (error) {
+                      console.error("Geolocation error:", error);
+                  }
+              );
+          }
+      }).addTo(map);
+
       let startPoint = null;
       let endPoint = null;
       let routingControl = null;
