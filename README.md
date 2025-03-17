@@ -22,7 +22,7 @@ To run the project locally:
    ```
 2. Navigate to the project folder:
    ```bash
-   cd route-tracker
+   cd route-tracking-webmap
    ```
 3. Open `index.html` in your browser.
 
