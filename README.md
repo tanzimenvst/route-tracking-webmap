@@ -10,7 +10,7 @@ A simple web-based route tracking application using **Leaflet.js** and **Leaflet
 - Displays real-time mouse position coordinates
 - User-friendly UI with an informative panel
 
-## Demo
+## Live Web Map
 You can access the live version of this project here:
 [GitHub Pages Link](https://tanzimenvst.github.io/route-tracking-webmap/)
 
