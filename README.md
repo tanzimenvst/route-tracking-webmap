@@ -41,9 +41,6 @@ To run the project locally:
 ## Demo Preview
 ![Route Tracker Demo](demo.gif)
 
-## License
-This project is licensed under the **MIT License**.
-
 ## Author
 Developed by **Tanzim**. Feel free to connect!
 
